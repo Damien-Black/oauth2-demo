@@ -71,10 +71,10 @@
                          "&redirect_uri=" + encodeURIComponent(redirect_uri) +
                          "&response_type=code'>Log in to DNAnexus</a>");
           
-          function DXHTTPRequest(route, input, auth_token, cb) {
+          function DXHTTPRequest(route, input, authToken, cb) {
              $.ajax({url: dx_api + route,
                      type: "POST",
-                     headers: {Authorization: "Bearer "+auth_token, "content-type": "application/json"},
+                     headers: {Authorization: "Bearer "+authToken, "content-type": "application/json"},
                      dataType: "json",
                      data: JSON.stringify(input),
                      success: function(data) {
@@ -83,26 +83,44 @@
                      }});
           }
 
+          function populateProjectList(authToken) {
+            DXHTTPRequest("/system/findProjects", {}, authToken, function(projList) {
+              for (var i=0; i<projList.results.length; i++) {
+                DXHTTPRequest("/" + projList.results[i].id + "/describe", {}, authToken, function(desc) {
+                  $('#projectList').append("<tr><td>"+desc.id+"</td><td>"+desc.name+"</td></tr>");
+                });
+              }
+            });
+          }
+
+          function getAuthToken(authorizationCode, redirect_uri, callback) {
+            $.post(auth_api + "/oauth2/token?grant_type=authorization_code" +
+                   "&code=" + authorizationCode +
+                   "&redirect_uri=" + encodeURIComponent(redirect_uri),
+                   callback);
+          }
+
+          function refreshAuthToken(refreshToken, callback) {
+            $.post(auth_api + "/oauth2/token?grant_type=refresh_token" +
+                   "&code=" + tokenData.refresh_token,
+                   callback);
+          }
+
           if ($.queryString.code) {
             document.write("<p>Received authentication code. Retrieving projects:</p>");
             document.write("<table id='projectList'><tr><th>Project ID</th><th>Project name</th></tr></table>");
-            $.post(auth_api + "/oauth2/token?grant_type=authorization_code" +
-                   "&code=" + $.queryString.code +
-                   "&redirect_uri=" + encodeURIComponent(redirect_uri),
-                   function(tokenData) {
-                     $.post(auth_api + "/oauth2/token?grant_type=refresh_token" +
-                            "&code=" + tokenData.refresh_token,
-                            function(data) {
-                              var token = data.access_token;
-                              DXHTTPRequest("/system/findProjects", {}, token, function(projList) {
-                                for (var i=0; i<projList.results.length; i++) {
-                                  DXHTTPRequest("/" + projList.results[i].id + "/describe", {}, token, function(desc) {
-                                    $('#projectList').append("<tr><td>"+desc.id+"</td><td>"+desc.name+"</td></tr>");
-                                  });
-                                }
-                              });
-                            });
-                   });
+            // The following sequence demonstrates use of the OAuth2 API to exchange the authorization code for an
+            // access token and refresh token, then using the refresh token twice to get a new access and refresh token.
+            // (The terms "access token" and "auth token" are used interchangeably.)
+            getAuthToken($.queryString.code,
+                         redirect_uri,
+                         function(tokenData) {
+                           refreshAuthToken(tokenData.refresh_token, function(tokenData2) {
+                             refreshAuthToken(tokenData2.refresh_token, function(tokenData3) {
+                               populateProjectList(tokenData3.access_token);
+                             });
+                           });
+                         });
           }
         </script>
       </section>
