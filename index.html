@@ -102,7 +102,7 @@
 
           function refreshAuthToken(refreshToken, callback) {
             $.post(auth_api + "/oauth2/token?grant_type=refresh_token" +
-                   "&code=" + refreshToken,
+                   "&refresh_token=" + refreshToken,
                    callback);
           }
 
