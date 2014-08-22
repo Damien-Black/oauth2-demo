@@ -89,15 +89,19 @@
             $.post(auth_api + "/oauth2/token?grant_type=authorization_code" +
                    "&code=" + $.queryString.code +
                    "&redirect_uri=" + encodeURIComponent(redirect_uri),
-                   function(data) {
-                     var token = data.access_token;
-                     DXHTTPRequest("/system/findProjects", {}, token, function(projList) {
-                       for (var i=0; i<projList.results.length; i++) {
-                         DXHTTPRequest("/" + projList.results[i].id + "/describe", {}, token, function(desc) {
-                           $('#projectList').append("<tr><td>"+desc.id+"</td><td>"+desc.name+"</td></tr>");
-                         });
-                       }
-                     });
+                   function(tokenData) {
+                     $.post(auth_api + "/oauth2/token?grant_type=refresh_token" +
+                            "&code=" + tokenData.refresh_token,
+                            function(data) {
+                              var token = data.access_token;
+                              DXHTTPRequest("/system/findProjects", {}, token, function(projList) {
+                                for (var i=0; i<projList.results.length; i++) {
+                                  DXHTTPRequest("/" + projList.results[i].id + "/describe", {}, token, function(desc) {
+                                    $('#projectList').append("<tr><td>"+desc.id+"</td><td>"+desc.name+"</td></tr>");
+                                  });
+                                }
+                              });
+                            });
                    });
           }
         </script>
