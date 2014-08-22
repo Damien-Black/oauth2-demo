@@ -102,7 +102,7 @@
 
           function refreshAuthToken(refreshToken, callback) {
             $.post(auth_api + "/oauth2/token?grant_type=refresh_token" +
-                   "&code=" + tokenData.refresh_token,
+                   "&code=" + refreshToken,
                    callback);
           }
 
@@ -112,6 +112,7 @@
             // The following sequence demonstrates use of the OAuth2 API to exchange the authorization code for an
             // access token and refresh token, then using the refresh token twice to get a new access and refresh token.
             // (The terms "access token" and "auth token" are used interchangeably.)
+            // Note: typically, the refresh token flow would be triggered by a 403 return code.
             getAuthToken($.queryString.code,
                          redirect_uri,
                          function(tokenData) {
