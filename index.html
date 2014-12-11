@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script src="javascripts/respond.js"></script>
+
+    <script src="javascripts/operative-0.3.2.min.js"></script>
+    <script src="javascripts/spark-md5-0.0.5.min.js"></script>
+    <script src="javascripts/dnanexus-javascript-toolkit-0.0.6.min.js"></script>
+
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -70,7 +75,7 @@
           document.write("<a href='" + auth_api + auth_route + "?client_id=" + client_id +
                          "&redirect_uri=" + encodeURIComponent(redirect_uri) +
                          "&response_type=code'>Log in to DNAnexus</a>");
-          
+
           function DXHTTPRequest(route, input, authToken, cb) {
              $.ajax({url: dx_api + route,
                      type: "POST",
@@ -84,11 +89,20 @@
           }
 
           function populateProjectList(authToken) {
-            DXHTTPRequest("/system/findProjects", {}, authToken, function(projList) {
-              for (var i=0; i<projList.results.length; i++) {
-                DXHTTPRequest("/" + projList.results[i].id + "/describe", {}, authToken, function(desc) {
-                  $('#projectList').append("<tr><td>"+desc.id+"</td><td>"+desc.name+"</td></tr>");
-                });
+            var api = new DX.Api(authToken);
+            var opts = {
+              describe: {
+                fields: {
+                  name: true,
+                  id: true
+                }
+              }
+            };
+
+            api.call("system", "findProjects", opts).done(function(response) {
+              for (var i=0; i < response.results.length; i++) {
+                var desc = response.results[i].describe;
+                $('#projectList').append("<tr><td>"+desc.id+"</td><td>"+desc.name+"</td></tr>");
               }
             });
           }
