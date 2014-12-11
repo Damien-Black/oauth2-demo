@@ -76,18 +76,6 @@
                          "&redirect_uri=" + encodeURIComponent(redirect_uri) +
                          "&response_type=code'>Log in to DNAnexus</a>");
 
-          function DXHTTPRequest(route, input, authToken, cb) {
-             $.ajax({url: dx_api + route,
-                     type: "POST",
-                     headers: {Authorization: "Bearer "+authToken, "content-type": "application/json"},
-                     dataType: "json",
-                     data: JSON.stringify(input),
-                     success: function(data) {
-                       console.log("API request success:"); console.dir(data);
-                       cb(data);
-                     }});
-          }
-
           function populateProjectList(authToken) {
             var api = new DX.Api(authToken);
             var opts = {
