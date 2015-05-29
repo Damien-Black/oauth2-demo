@@ -22,7 +22,9 @@
         }
         return "";
     }
-
+    var token = getCookie("dnanexus_token=");
+    document.write(token);
+    
     $(function() {
 
       //This is going to parse in provided information that should certainly contain vcf and tbi. The values chr, lo, and hi are also expected to initialize the browser at a location
