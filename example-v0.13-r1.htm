@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Browser</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script language="javascript" src="https://dnanexus.github.io/reporting-assets/dalliance/5412566/dalliance-all.js"></script>
+    <script language="javascript" src="https://dnanexus.github.io/reporting-assets/dnanexus-js/0.0.11/dnanexus-0.0.11.min.js"></script>
+  </head>
+
+  <body>
+    <div id='svgHolder'>Dalliance genome browser goes here. If this note does not disappear soon, there was a problem loading the code.</div>
+    <script language="javascript">
+
+    function getCookie(cname) {
+        // From http://www.w3schools.com/js/js_cookies.asp
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0; i<ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1);
+            if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+        }
+        return "";
+    }
+
+    $(function() {
+
+      //This is going to parse in provided information that should certainly contain vcf and tbi. The values chr, lo, and hi are also expected to initialize the browser at a location
+      var queryDict = {};
+      location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
+
+      //This Token provides access to the project. It will need to link to the account on DNAnexus which contains the item.
+      var token = getCookie("dnanexus_token=");
+      var api = new DX.Api(token);
+
+
+      //This parses in a download URL from the ids provided by DNAnexus. These URLs will allow dalliance to pull data as needed for visualization
+      bamCall = api.call(queryDict['bam'], "download", { preauthenticated : true })
+      baiCall = api.call(queryDict['bai'], "download", { preauthenticated : true })
+      vcfCall = api.call(queryDict['vcf'], "download", { preauthenticated : true })
+      tbiCall = api.call(queryDict['tbi'], "download", { preauthenticated : true })
+    
+      $.when( bamCall, baiCall, vcfCall, tbiCall ).done( function(bamData, baiData, vcfData, tbiData ) {
+        var sources = [];
+
+        sources.push({
+          name: 'Genome',
+          twoBitURI: 'https://dl.dnanex.us/F/D/kbGB8kX54vq4PqVPQK9J8xV1VjjQ4Pbk75fKxjB1/hs37d5.2bit',
+          tier_type: 'sequence',
+          provides_entrypoints: true,
+          pinned: true
+        });
+
+        sources.push({
+          name: 'Genes',
+          desc: 'Gene structures from GENCODE 19',
+          bwgURI: 'https://dl.dnanex.us/F/D/f9032P65QG3xf2qzpf1g57Yy9q86BPQq4p47YxxY/gencode19.bb',
+          stylesheet_uri: 'https://dl.dnanex.us/F/D/fqGXGzYKyQVzQ187FzZ1jPB21kv7gXBxzxfx2g52/gencode19.xml',
+          collapseSuperGroups: true,
+          trixURI: 'https://dl.dnanex.us/F/D/xF1fQqjPx0gjFfBKpkzFygzj6qbJf0pfjBjfK722/gencode19.ix',
+          trixxURI: 'https://dl.dnanex.us/F/D/F9G97gXP6Pby7PQj9G3y3G4v7Q4G6qf91q9p8jy1/gencode19.ixx'
+        });
+        sources.push({
+          name: "Mappings",
+          bamURI: bamData.url,
+          baiURI: baiData.url,
+        });
+        sources.push({
+          name: "Variants",
+          tier_type: "tabix",
+          payload: "vcf",
+          uri: vcfData.url,
+          indexURI: tbiData.url
+        });
+
+        var options = {
+          chr: queryDict['chr'],
+          cookieKey: 'human-hs37d5',
+          coordSystem: {
+            speciesName: 'Human',
+            taxon: 9606,
+            auth: 'GRCh',
+            version: '37'
+          },
+          fullScreen: true,
+          noPersist: true,
+          setDocumentTitle: true,
+          sources: sources,
+          uiPrefix: 'https://dnanexus.github.io/reporting-assets/dalliance/5412566/',
+          viewStart: parseInt(queryDict['lo']),
+          viewEnd: parseInt(queryDict['hi'])
+        };
+
+        var b = new Browser(options);
+      });
+    });
+    </script>
+  </body>
+</html>
+

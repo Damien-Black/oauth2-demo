@@ -61,39 +61,15 @@
                 })(window.location.search.substr(1).split('&'))
             })(jQuery);
 
-          var dx_api = "https://api.dnanexus.com";
           var auth_api = "https://auth.dnanexus.com";
           var auth_route = "/oauth2/authorize";
           var client_id = "test";
           var redirect_uri = "https://dnanexus.github.io/oauth2-demo";
 
-          //dx_api = "http://localhost:8124";
-          //auth_api = "http://localhost:8081";
-          //dx_api = "https://stagingapi.dnanexus.com";
-          //auth_api = "https://stagingauth.dnanexus.com";
-
           document.write("<a href='" + auth_api + auth_route + "?client_id=" + client_id +
                          "&redirect_uri=" + encodeURIComponent(redirect_uri) +
+                         // TODO add scoping parameters
                          "&response_type=code'>Log in to DNAnexus</a>");
-
-          function populateProjectList(authToken) {
-            var api = new DX.Api(authToken);
-            var opts = {
-              describe: {
-                fields: {
-                  name: true,
-                  id: true
-                }
-              }
-            };
-
-            api.call("system", "findProjects", opts).done(function(response) {
-              for (var i=0; i < response.results.length; i++) {
-                var desc = response.results[i].describe;
-                $('#projectList').append("<tr><td>"+desc.id+"</td><td>"+desc.name+"</td></tr>");
-              }
-            });
-          }
 
           function getAuthToken(authorizationCode, redirect_uri, callback) {
             $.post(auth_api + "/oauth2/token?grant_type=authorization_code" +
@@ -102,15 +78,16 @@
                    callback);
           }
 
-          function refreshAuthToken(refreshToken, callback) {
-            $.post(auth_api + "/oauth2/token?grant_type=refresh_token" +
-                   "&refresh_token=" + refreshToken,
-                   callback);
+          function setCookie(cname, cvalue, exdays) {
+            // From http://www.w3schools.com/js/js_cookies.asp
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays*24*60*60*1000));
+            var expires = "expires="+d.toUTCString();
+            document.cookie = cname + "=" + cvalue + "; " + expires;
           }
 
           if ($.queryString.code) {
-            document.write("<p>Received authentication code. Retrieving projects:</p>");
-            document.write("<table id='projectList'><tr><th>Project ID</th><th>Project name</th></tr></table>");
+            document.write("<p>Received authentication code.</p>");
             // The following sequence demonstrates use of the OAuth2 API to exchange the authorization code for an
             // access token and refresh token, then using the refresh token twice to get a new access and refresh token.
             // (The terms "access token" and "auth token" are used interchangeably.)
@@ -118,11 +95,8 @@
             getAuthToken($.queryString.code,
                          redirect_uri,
                          function(tokenData) {
-                           refreshAuthToken(tokenData.refresh_token, function(tokenData2) {
-                             refreshAuthToken(tokenData2.refresh_token, function(tokenData3) {
-                               populateProjectList(tokenData3.access_token);
-                             });
-                           });
+                               setCookie("dnanexus_token", tokenData, 7);
+                               document.location.href= redirect_uri + "bam=file-BZP7y58079x306100k7kbY00&bai=file-BZZ7XX009k8kQ9z2z5Zj7QGf&vcf=file-BZPBxb00xyP5xfpjgJzzkXp2&tbi=file-BZbQ10007bz9Q9z2z5ZjkXXg&chr=17&lo=41243800&hi=41244200"
                          });
           }
         </script>
