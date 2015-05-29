@@ -22,9 +22,7 @@
         }
         return "";
     }
-    var token = getCookie("dnanexus_token=");
-    document.write(token);
-    
+
     $(function() {
 
       //This is going to parse in provided information that should certainly contain vcf and tbi. The values chr, lo, and hi are also expected to initialize the browser at a location
@@ -35,7 +33,6 @@
       var token = getCookie("dnanexus_token=");
       document.write(token);
       var api = new DX.Api(token);
-
 
       //This parses in a download URL from the ids provided by DNAnexus. These URLs will allow dalliance to pull data as needed for visualization
       bamCall = api.call(queryDict['bam'], "download", { preauthenticated : true })
