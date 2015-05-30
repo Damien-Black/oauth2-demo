@@ -95,7 +95,7 @@
             getAuthToken($.queryString.code,
                          redirect_uri,
                          function(tokenData) {
-                               setCookie("dnanexus_token", tokenData, 7);
+                               setCookie("dnanexus_token", tokenData.access_token, 7);
                                document.location.href= redirect_uri + "/example-v0.13-r1.htm?bam=file-BZP7y58079x306100k7kbY00&bai=file-BZZ7XX009k8kQ9z2z5Zj7QGf&vcf=file-BZPBxb00xyP5xfpjgJzzkXp2&tbi=file-BZbQ10007bz9Q9z2z5ZjkXXg&chr=17&lo=41243800&hi=41244200"
                          });
           }
