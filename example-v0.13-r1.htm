@@ -31,7 +31,6 @@
 
       //This Token provides access to the project. It will need to link to the account on DNAnexus which contains the item.
       var token = getCookie("dnanexus_token");
-      document.write(token);
       var api = new DX.Api(token);
 
       //This parses in a download URL from the ids provided by DNAnexus. These URLs will allow dalliance to pull data as needed for visualization
