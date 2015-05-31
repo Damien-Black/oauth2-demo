@@ -77,11 +77,9 @@
       location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
 
       //This Token provides access to the project. It will need to link to the account on DNAnexus which contains the item.
-      getToken();
       var token = getCookie("dnanexus_token");
       if (token == "") {
         getToken();
-        token = getCookie("dnanexus_token");
       }
 
       var api = new DX.Api(token);
