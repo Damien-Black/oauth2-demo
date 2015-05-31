@@ -30,21 +30,6 @@
              callback);
     }
 
-    if ($.queryString) {
-    if ($.queryString.code) {
-      document.write("<p>Received authentication code.</p>");
-      // The following sequence demonstrates use of the OAuth2 API to exchange the authorization code for an
-      // access token and refresh token, then using the refresh token twice to get a new access and refresh token.
-      // (The terms "access token" and "auth token" are used interchangeably.)
-      // Note: typically, the refresh token flow would be triggered by a 403 return code.
-      getAuthToken($.queryString.code,
-                   redirect_uri,
-                   function(tokenData) {
-                     setCookie("dnanexus_token", tokenData.access_token, 7);
-                   });
-    }
-    }
-
     function getCookie(cname) {
       // From http://www.w3schools.com/js/js_cookies.asp
       var name = cname + "=";
@@ -75,6 +60,19 @@
       //This is going to parse in provided information that should certainly contain vcf and tbi. The values chr, lo, and hi are also expected to initialize the browser at a location
       var queryDict = {};
       location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
+
+      if ("code" in queryDict) {
+        document.write("<p>Received authentication code.</p>");
+        // The following sequence demonstrates use of the OAuth2 API to exchange the authorization code for an
+        // access token and refresh token, then using the refresh token twice to get a new access and refresh token.
+        // (The terms "access token" and "auth token" are used interchangeably.)
+        // Note: typically, the refresh token flow would be triggered by a 403 return code.
+        getAuthToken($.queryString.code,
+                     redirect_uri,
+                     function(tokenData) {
+                       setCookie("dnanexus_token", tokenData.access_token, 7);
+                     });
+      }
 
       //This Token provides access to the project. It will need to link to the account on DNAnexus which contains the item.
       var token = getCookie("dnanexus_token");
