@@ -30,6 +30,7 @@
              callback);
     }
 
+    if ($.queryString) {
     if ($.queryString.code) {
       document.write("<p>Received authentication code.</p>");
       // The following sequence demonstrates use of the OAuth2 API to exchange the authorization code for an
@@ -41,6 +42,7 @@
                    function(tokenData) {
                      setCookie("dnanexus_token", tokenData.access_token, 7);
                    });
+    }
     }
 
     function getCookie(cname) {
