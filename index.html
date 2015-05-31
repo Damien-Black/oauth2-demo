@@ -67,7 +67,7 @@
         // access token and refresh token, then using the refresh token twice to get a new access and refresh token.
         // (The terms "access token" and "auth token" are used interchangeably.)
         // Note: typically, the refresh token flow would be triggered by a 403 return code.
-        getAuthToken($.queryString.code,
+        getAuthToken(queryDict["code"],
                      redirect_uri,
                      function(tokenData) {
                        setCookie("dnanexus_token", tokenData.access_token, 7);
