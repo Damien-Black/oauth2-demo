@@ -1,109 +1,99 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Dnanexus BioDalliance Demo</title>
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-    <script src="javascripts/respond.js"></script>
-
-    <script src="javascripts/operative-0.3.2.min.js"></script>
-    <script src="javascripts/spark-md5-0.0.5.min.js"></script>
-    <script src="javascripts/dnanexus-javascript-toolkit-0.0.6.min.js"></script>
-
-    <!--[if lt IE 9]>
-      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lt IE 8]>
-    <link rel="stylesheet" href="stylesheets/ie.css">
-    <![endif]-->
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <title>Browser</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script language="javascript" src="https://dnanexus.github.io/reporting-assets/dalliance/5412566/dalliance-all.js"></script>
+    <script language="javascript" src="https://dnanexus.github.io/reporting-assets/dnanexus-js/0.0.11/dnanexus-0.0.11.min.js"></script>
   </head>
+
   <body>
-      <div id="header">
-        <nav>
-          <li class="fork"><a href="https://github.com/dnanexus/oauth2-demo">View On GitHub</a></li>
-          <li class="downloads"><a href="https://github.com/dnanexus/oauth2-demo/zipball/master">ZIP</a></li>
-          <li class="downloads"><a href="https://github.com/dnanexus/oauth2-demo/tarball/master">TAR</a></li>
-          <li class="title">DOWNLOADS</li>
-        </nav>
-      </div><!-- end header -->
+    <div id='svgHolder'>Dalliance genome browser goes here. If this note does not disappear soon, there was a problem loading the code.</div>
+    <script language="javascript">
 
-    <div class="wrapper">
+    function getCookie(cname) {
+        // From http://www.w3schools.com/js/js_cookies.asp
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0; i<ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1);
+            if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+        }
+        return "";
+    }
 
-      <section>
-        <div id="title">
-          <h1>Dnanexus-biodalliance-demo</h1>
-          <p>DNAnexus BioDalliance site</p>
-          <hr>
-          <span class="credits left">Project maintained by <a href="https://github.com/godotgildor">Brett T. Hannigan</a></span>
-          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
-        </div>
+    $(function() {
 
-        <h1>
-<a name="dnanexus-biodalliance-demo" class="anchor" href="#dnanexus-biodalliance-demo"><span class="octicon octicon-link"></span></a>DNAnexus BioDalliance demo</h1>
+      //This is going to parse in provided information that should certainly contain vcf and tbi. The values chr, lo, and hi are also expected to initialize the browser at a location
+      var queryDict = {};
+      location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
 
-        <script type="text/javascript">
-            (function($) {
-                $.queryString = (function(a) {
-                    if (a == "") return {};
-                    var b = {};
-                    for (var i = 0; i < a.length; ++i)
-                    {
-                        var p=a[i].split('=');
-                        if (p.length != 2) continue;
-                        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
-                    }
-                    return b;
-                })(window.location.search.substr(1).split('&'))
-            })(jQuery);
+      //This Token provides access to the project. It will need to link to the account on DNAnexus which contains the item.
+      var token = getCookie("dnanexus_token");
+      var api = new DX.Api(token);
 
-          var auth_api = "https://auth.dnanexus.com";
-          var auth_route = "/oauth2/authorize";
-          var client_id = "test";
-          var redirect_uri = "https://dnanexus.github.io/oauth2-demo";
-
-          document.write("<a href='" + auth_api + auth_route + "?client_id=" + client_id +
-                         "&redirect_uri=" + encodeURIComponent(redirect_uri) +
-                         // TODO add scoping parameters
-                         "&response_type=code'>Log in to DNAnexus</a>");
-
-          function getAuthToken(authorizationCode, redirect_uri, callback) {
-            $.post(auth_api + "/oauth2/token?grant_type=authorization_code" +
-                   "&code=" + authorizationCode +
-                   "&redirect_uri=" + encodeURIComponent(redirect_uri),
-                   callback);
-          }
-
-          function setCookie(cname, cvalue, exdays) {
-            // From http://www.w3schools.com/js/js_cookies.asp
-            var d = new Date();
-            d.setTime(d.getTime() + (exdays*24*60*60*1000));
-            var expires = "expires="+d.toUTCString();
-            document.cookie = cname + "=" + cvalue + "; " + expires;
-          }
-
-          if ($.queryString.code) {
-            document.write("<p>Received authentication code.</p>");
-            // The following sequence demonstrates use of the OAuth2 API to exchange the authorization code for an
-            // access token and refresh token, then using the refresh token twice to get a new access and refresh token.
-            // (The terms "access token" and "auth token" are used interchangeably.)
-            // Note: typically, the refresh token flow would be triggered by a 403 return code.
-            getAuthToken($.queryString.code,
-                         redirect_uri,
-                         function(tokenData) {
-                               setCookie("dnanexus_token", tokenData.access_token, 7);
-                               document.location.href= redirect_uri + "/example-v0.13-r1.htm?bam=file-BZP7y58079x306100k7kbY00&bai=file-BZZ7XX009k8kQ9z2z5Zj7QGf&vcf=file-BZPBxb00xyP5xfpjgJzzkXp2&tbi=file-BZbQ10007bz9Q9z2z5ZjkXXg&chr=17&lo=41243800&hi=41244200"
-                         });
-          }
-        </script>
-      </section>
-
-    </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+      //This parses in a download URL from the ids provided by DNAnexus. These URLs will allow dalliance to pull data as needed for visualization
+      bamCall = api.call(queryDict['bam'], "download", { preauthenticated : true })
+      baiCall = api.call(queryDict['bai'], "download", { preauthenticated : true })
+      vcfCall = api.call(queryDict['vcf'], "download", { preauthenticated : true })
+      tbiCall = api.call(queryDict['tbi'], "download", { preauthenticated : true })
     
+      $.when( bamCall, baiCall, vcfCall, tbiCall ).done( function(bamData, baiData, vcfData, tbiData ) {
+        var sources = [];
+
+        sources.push({
+          name: 'Genome',
+          twoBitURI: 'https://dl.dnanex.us/F/D/kbGB8kX54vq4PqVPQK9J8xV1VjjQ4Pbk75fKxjB1/hs37d5.2bit',
+          tier_type: 'sequence',
+          provides_entrypoints: true,
+          pinned: true
+        });
+
+        sources.push({
+          name: 'Genes',
+          desc: 'Gene structures from GENCODE 19',
+          bwgURI: 'https://dl.dnanex.us/F/D/f9032P65QG3xf2qzpf1g57Yy9q86BPQq4p47YxxY/gencode19.bb',
+          stylesheet_uri: 'https://dl.dnanex.us/F/D/fqGXGzYKyQVzQ187FzZ1jPB21kv7gXBxzxfx2g52/gencode19.xml',
+          collapseSuperGroups: true,
+          trixURI: 'https://dl.dnanex.us/F/D/xF1fQqjPx0gjFfBKpkzFygzj6qbJf0pfjBjfK722/gencode19.ix',
+          trixxURI: 'https://dl.dnanex.us/F/D/F9G97gXP6Pby7PQj9G3y3G4v7Q4G6qf91q9p8jy1/gencode19.ixx'
+        });
+        sources.push({
+          name: "Mappings",
+          bamURI: bamData.url,
+          baiURI: baiData.url,
+        });
+        sources.push({
+          name: "Variants",
+          tier_type: "tabix",
+          payload: "vcf",
+          uri: vcfData.url,
+          indexURI: tbiData.url
+        });
+
+        var options = {
+          chr: queryDict['chr'],
+          cookieKey: 'human-hs37d5',
+          coordSystem: {
+            speciesName: 'Human',
+            taxon: 9606,
+            auth: 'GRCh',
+            version: '37'
+          },
+          fullScreen: true,
+          noPersist: true,
+          setDocumentTitle: true,
+          sources: sources,
+          uiPrefix: 'https://dnanexus.github.io/reporting-assets/dalliance/5412566/',
+          viewStart: parseInt(queryDict['lo']),
+          viewEnd: parseInt(queryDict['hi'])
+        };
+
+        var b = new Browser(options);
+      });
+    });
+    </script>
   </body>
 </html>
+
