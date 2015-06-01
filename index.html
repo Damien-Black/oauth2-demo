@@ -18,8 +18,8 @@
 
     function getToken(curr_redirect_uri) {
       document.location.href = auth_api + auth_route + "?client_id=" + client_id +
-                               "&redirect_uri=" + encodeURIComponent(curr_redirect_uri) +
-                               "&response_type=code";
+                               "&response_type=code" +
+                               "&redirect_uri=" + encodeURIComponent(curr_redirect_uri);
                                // TODO add scoping parameters
     }
 
