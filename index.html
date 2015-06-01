@@ -138,12 +138,12 @@
                        setCookie("dnanexus_token", tokenData.access_token, 7);
                        runBiodalliance(queryDict);
                      });
-      }
-
-      //This Token provides access to the project. It will need to link to the account on DNAnexus which contains the item.
-      var token = getCookie("dnanexus_token");
-      if (token == "") {
-        getToken(location.href);
+      } else {
+          //This Token provides access to the project. It will need to link to the account on DNAnexus which contains the item.
+          var token = getCookie("dnanexus_token");
+          if (token == "") {
+            getToken(location.href);
+          }
       }
     });
     </script>
