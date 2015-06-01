@@ -56,10 +56,8 @@
     }
 
     function runBiodalliance(queryDict) {
-      //console.log("Hello Evan");
       var token = getCookie("dnanexus_token");
       var api = new DX.Api(token);
-      //console.log("token", token);
 
       //This parses in a download URL from the ids provided by DNAnexus. These URLs will allow dalliance to pull data as needed for visualization
       bamCall = api.call(queryDict['bam'], "download", { preauthenticated : true })
@@ -119,7 +117,6 @@
         };
 
         var b = new Browser(options);
-        //console.log("Bye evan");
       });
     }
 
