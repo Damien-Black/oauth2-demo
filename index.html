@@ -138,7 +138,7 @@
         getAuthToken(queryDict["code"],
                      redirect_uri,
                      function(tokenData) {
-                       setCookie("dnanexus_token", tokenData.access_token, 7);
+                       setCookie("dnanexus_token2", tokenData.access_token, 7);
                        runBiodalliance(biodallianceParams);
                      });
       } else {
