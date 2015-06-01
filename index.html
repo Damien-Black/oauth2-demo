@@ -132,17 +132,23 @@
         document.write("<p>Received authentication code.</p>");
         // The following sequence demonstrates use of the OAuth2 API to exchange the authorization code for an
         // access token.  (The terms "access token" and "auth token" are used interchangeably.)
+        biodallianceParams = JSON.parse(getCookie("biodalliance_params"));
+        setCookie("biodalliance_params", "", -7);
         getAuthToken(queryDict["code"],
                      redirect_uri,
                      function(tokenData) {
                        setCookie("dnanexus_token", tokenData.access_token, 7);
-                       runBiodalliance(queryDict);
+                       runBiodalliance(biodallianceParams);
                      });
       } else {
           //This Token provides access to the project. It will need to link to the account on DNAnexus which contains the item.
           var token = getCookie("dnanexus_token");
           if (token == "") {
-            getToken(location.href);
+            setCookie("biodalliance_params", JSON.stringify(queryDict), 7);
+            getToken(redirect_uri);
+          }
+          else {
+            runBiodalliance(queryDict);
           }
       }
     });
