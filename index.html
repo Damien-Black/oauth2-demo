@@ -134,6 +134,7 @@
         // access token.  (The terms "access token" and "auth token" are used interchangeably.)
         biodallianceParams = JSON.parse(getCookie("biodalliance_params"));
         setCookie("biodalliance_params", "", -7);
+        document.write("<p>Received authentication code. Hi Brett!</p>");
         getAuthToken(queryDict["code"],
                      redirect_uri,
                      function(tokenData) {
