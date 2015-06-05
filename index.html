@@ -120,7 +120,11 @@
       }
 
       function errorHandler(error) {
-        console.log("Error", error);
+        var message = "An unexpected error occurred while attempting to load your data.";
+        if (error && error.type && error.message) {
+          message = error.type + ": " + error.message;
+        }
+        alert(message);
       }
 
       $.when(bamCall, baiCall, vcfCall, tbiCall).then(launchBioDalliance, errorHandler);
