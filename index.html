@@ -65,7 +65,7 @@
       vcfCall = api.call(queryDict['vcf'], "download", { preauthenticated : true })
       tbiCall = api.call(queryDict['tbi'], "download", { preauthenticated : true })
 
-      $.when( bamCall, baiCall, vcfCall, tbiCall ).done( function(bamData, baiData, vcfData, tbiData ) {
+      function launchBioDalliance((bamData, baiData, vcfData, tbiData) {
         var sources = [];
 
         sources.push({
@@ -117,7 +117,13 @@
         };
 
         var b = new Browser(options);
-      });
+      }
+
+      function errorHandler(error) {
+        console.log("Error", error);
+      }
+
+      $.when( bamCall, baiCall, vcfCall, tbiCall ).then(launchBioDalliance, errorHandler);
     }
 
     $(function() {
@@ -151,10 +157,8 @@
             // Make sure the token is valid
             var api = new DX.Api(token);
             api.call("system", "whoami").then(function(response) {
-              console.log(response);
               runBiodalliance(queryDict);
             }).fail(function() {
-              console.log("Whoami fail");
               setCookie("biodalliance_params", JSON.stringify(queryDict), 7);
               getToken(redirect_uri);
             });
