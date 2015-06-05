@@ -142,12 +142,20 @@
       } else {
           //This Token provides access to the project. It will need to link to the account on DNAnexus which contains the item.
           var token = getCookie("dnanexus_token");
+
           if (token == "") {
             setCookie("biodalliance_params", JSON.stringify(queryDict), 7);
             getToken(redirect_uri);
           }
           else {
-            runBiodalliance(queryDict);
+            // Make sure the token is valid
+            var api = new DX.Api(token);
+            api.call("system", "whoami").then(function() {
+              runBiodalliance(queryDict);
+            }).fail(function() {
+              setCookie("biodalliance_params", JSON.stringify(queryDict), 7);
+              getToken(redirect_uri);
+            });
           }
       }
     });
