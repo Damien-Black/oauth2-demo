@@ -80,8 +80,8 @@
         var bamFileIDs = queryDict['bam'].split(',');
         var baiFileIDs = queryDict['bai'].split(',');
 
-        if (bamFileIDs.length !== baiFileIDs) {
-          var msg = "BAM/BAI mismatch detected. " + bamFileIDs.length + "bam files, " + baiFileIDs.length + "bai files.";
+        if (bamFileIDs.length !== baiFileIDs.length) {
+          var msg = "BAM/BAI mismatch detected. " + bamFileIDs.length + " bam files, " + baiFileIDs.length + " bai files.";
           alert(msg);
           throw new Error(msg);
         }
