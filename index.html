@@ -150,9 +150,11 @@
           else {
             // Make sure the token is valid
             var api = new DX.Api(token);
-            api.call("system", "whoami").then(function() {
+            api.call("system", "whoami").then(function(response) {
+              console.log(response);
               runBiodalliance(queryDict);
             }).fail(function() {
+              console.log("Whoami fail");
               setCookie("biodalliance_params", JSON.stringify(queryDict), 7);
               getToken(redirect_uri);
             });
