@@ -59,14 +59,67 @@
       var token = getCookie("dnanexus_token");
       var api = new DX.Api(token);
 
+      var sources = [];
+
+      function errorHandler(error) {
+        var message = "An unexpected error occurred while attempting to load your data.";
+        if (error && error.type && error.message) {
+          message = error.type + ": " + error.message;
+        }
+        alert(message);
+      }
+
+      /*
+       * Loads all fo the mappings as two comma separated lists of file IDS in the url,
+       * as query parameters "bam" and "bai"
+       */
+      function loadMappings() {
+        var mappingSources = [];
+        var loadingStatus = $.Deferred();
+
+        var bamFileIDs = queryDict['bam'].split(',');
+        var baiFileIDs = queryDict['bai'].split(',');
+
+        if (bamFileIDs.length !== baiFileIDs) {
+          var msg = "BAM/BAI mismatch detected. " + bamFileIDs.length + "bam files, " + baiFileIDs.length + "bai files.";
+          alert(msg);
+          throw new Error(msg);
+        }
+
+        var deferreds = [];
+        var bamFileURLs = [];
+        var baiFileURLs = [];
+        var i;
+
+        for (i = 0; i < bamFileIDs.length; ++i) {
+          deferreds.push(api.call(bamFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
+            bamFileURLs.push(response.url);
+          }));
+          deferreds.push(api.call(baiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
+            baiFileURLs.push(response.url);
+          }));
+        }
+
+        $.when.apply($, deferreds).then(function() {
+          for (i = 0; i < bamFileURLs.length; ++i) {
+            mappingSources.push({
+              name: "Mappings",
+              bamURI: bamFileURLs[i],
+              baiURI: baiFileURLs[i]
+            });
+          }
+
+          loadingStatus.resolve(mappingSources);
+        }, errorHandler);
+
+        return loadingStatus;
+      }
+
       //This parses in a download URL from the ids provided by DNAnexus. These URLs will allow dalliance to pull data as needed for visualization
-      bamCall = api.call(queryDict['bam'], "download", { preauthenticated : true });
-      baiCall = api.call(queryDict['bai'], "download", { preauthenticated : true });
       vcfCall = api.call(queryDict['vcf'], "download", { preauthenticated : true });
       tbiCall = api.call(queryDict['tbi'], "download", { preauthenticated : true });
 
-      function launchBioDalliance(bamData, baiData, vcfData, tbiData) {
-        var sources = [];
+      function launchBioDalliance(mappingSources, vcfData, tbiData) {
 
         sources.push({
           name: 'Genome',
@@ -85,11 +138,11 @@
           trixURI: 'https://dl.dnanex.us/F/D/xF1fQqjPx0gjFfBKpkzFygzj6qbJf0pfjBjfK722/gencode19.ix',
           trixxURI: 'https://dl.dnanex.us/F/D/F9G97gXP6Pby7PQj9G3y3G4v7Q4G6qf91q9p8jy1/gencode19.ixx'
         });
-        sources.push({
-          name: "Mappings",
-          bamURI: bamData.url,
-          baiURI: baiData.url,
+
+        mappingSources.forEach(function(source) {
+          sources.push(source);
         });
+
         sources.push({
           name: "Variants",
           tier_type: "tabix",
@@ -119,15 +172,7 @@
         var b = new Browser(options);
       }
 
-      function errorHandler(error) {
-        var message = "An unexpected error occurred while attempting to load your data.";
-        if (error && error.type && error.message) {
-          message = error.type + ": " + error.message;
-        }
-        alert(message);
-      }
-
-      $.when(bamCall, baiCall, vcfCall, tbiCall).then(launchBioDalliance, errorHandler);
+      $.when(loadMappings(), vcfCall, tbiCall).then(launchBioDalliance, errorHandler);
     }
 
     $(function() {
