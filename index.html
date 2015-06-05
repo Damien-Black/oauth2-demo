@@ -60,12 +60,12 @@
       var api = new DX.Api(token);
 
       //This parses in a download URL from the ids provided by DNAnexus. These URLs will allow dalliance to pull data as needed for visualization
-      bamCall = api.call(queryDict['bam'], "download", { preauthenticated : true })
-      baiCall = api.call(queryDict['bai'], "download", { preauthenticated : true })
-      vcfCall = api.call(queryDict['vcf'], "download", { preauthenticated : true })
-      tbiCall = api.call(queryDict['tbi'], "download", { preauthenticated : true })
+      bamCall = api.call(queryDict['bam'], "download", { preauthenticated : true });
+      baiCall = api.call(queryDict['bai'], "download", { preauthenticated : true });
+      vcfCall = api.call(queryDict['vcf'], "download", { preauthenticated : true });
+      tbiCall = api.call(queryDict['tbi'], "download", { preauthenticated : true });
 
-      function launchBioDalliance((bamData, baiData, vcfData, tbiData) {
+      function launchBioDalliance(bamData, baiData, vcfData, tbiData) {
         var sources = [];
 
         sources.push({
@@ -123,7 +123,7 @@
         console.log("Error", error);
       }
 
-      $.when( bamCall, baiCall, vcfCall, tbiCall ).then(launchBioDalliance, errorHandler);
+      $.when(bamCall, baiCall, vcfCall, tbiCall).then(launchBioDalliance, errorHandler);
     }
 
     $(function() {
