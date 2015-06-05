@@ -93,10 +93,10 @@
 
         for (i = 0; i < bamFileIDs.length; ++i) {
           deferreds.push(api.call(bamFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
-            bamFileURLs.push(response.url);
+            bamFileURLs.push(resp.url);
           }));
           deferreds.push(api.call(baiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
-            baiFileURLs.push(response.url);
+            baiFileURLs.push(resp.url);
           }));
         }
 
