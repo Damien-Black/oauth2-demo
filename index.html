@@ -74,6 +74,26 @@
       ]
     };
 
+    var genomeInfo = {
+      hg18: {
+        auth: 'hg',
+        version: '18',
+        cookieKey: 'human-hg18'
+      },
+
+      hg19: {
+        auth: 'hg',
+        version: '19',
+        cookieKey: 'human-hg19'
+      },
+
+      GRCh37: {
+        auth: 'GRCh',
+        version: '37',
+        cookieKey: 'human-hs37d5'
+      }
+    };
+
     function getToken(curr_redirect_uri) {
       document.location.href = auth_api + auth_route + "?client_id=" + client_id +
                                "&redirect_uri=" + encodeURIComponent(curr_redirect_uri) +
@@ -238,14 +258,18 @@
           sources.push(source);
         });
 
+        var cookieKey = genomeInfo[genome].cookieKey;
+        var auth = genomeInfo[genome].auth
+        var version = genomeInfo[genome].version;
+
         var options = {
           chr: queryDict['chr'],
-          cookieKey: 'human-hs37d5',
+          cookieKey: cookieKey,
           coordSystem: {
             speciesName: 'Human',
             taxon: 9606,
-            auth: 'GRCh',
-            version: '37'
+            auth: auth,
+            version: version
           },
           fullScreen: true,
           noPersist: true,
