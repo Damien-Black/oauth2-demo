@@ -121,7 +121,7 @@
 
       var genome = queryDict['genome'] || "hg19";
 
-      if (!genomeBundles.hasOwnProperty('genome')) {
+      if (!genomeSourceBundles.hasOwnProperty('genome')) {
         alert("Unknown genome '" + genome + "' specified, defaulting to hg19");
         genome = "hg19";
       }
