@@ -16,6 +16,64 @@
     var client_id = "test";
     var redirect_uri = "https://dnanexus.github.io/oauth2-demo";
 
+    var genomeSourceBundles = {
+      hg18: [
+        {
+          name: 'Genome',
+          twoBitURI: 'https://dl.dnanex.us/F/D/g1Xgk0V93q2BXPPfP2p0fv9VyYV91G4502xgX1xZ/hg18.2bit',
+          tier_type: 'sequence',
+          provides_entrypoints: true,
+          pinned: true
+        },
+        {
+          name: 'Genes',
+          desc: 'Gene structures from Ensembl 54',
+          uri: 'http://www.derkholm.net:8080/das/hsa_54_36p/',
+          collapseSuperGroups:  true,
+          provides_karyotype:   true,
+          provides_search:      true,
+          provides_entrypoints: true,
+          maxbins:              false
+        }
+      ],
+
+      hg19: [
+        {
+          name: 'Genome',
+          twoBitURI: 'https://dl.dnanex.us/F/D/kKvgBfg4Z2ykyg29V2kFG5FvPyg1VG2Qqb1Z2jQq/hg19.2bit',
+          tier_type: 'sequence',
+          provides_entrypoints: true,
+          pinned: true
+        },
+        {
+          name: 'Genes',
+          desc: 'Gene structures from GENCODE 19',
+          bwgURI: 'https://dl.dnanex.us/F/D/GBk5FgkZPBjXpPj276KbyqV6z3z8Kbg95F3QqfGF/gencode.bb',
+          stylesheet_uri: 'https://dl.dnanex.us/F/D/5FbxpzGfFpX2Y6B069j0Gb68gY2Jv5F4PgXb2bP1/gencode.xml',
+          collapseSuperGroups: true,
+          trixURI: 'https://dl.dnanex.us/F/D/201BYVJj1y3PXxqyVp3gpZjk00fKx4q194Fb81Fk/geneIndex.ix'
+        }
+      ],
+
+      GRCh37: [
+        {
+          name: 'Genome',
+          twoBitURI: 'https://dl.dnanex.us/F/D/VkJKXPKJqv7qK4QQbV6JJVGzZ59155q7FvfFJfK8/hs37d5.2bit',
+          tier_type: 'sequence',
+          provides_entrypoints: true,
+          pinned: true
+        },
+        {
+          name: 'Genes',
+          desc: 'Gene structures from GENCODE 19',
+          bwgURI: 'https://dl.dnanex.us/F/D/GBk5FgkZPBjXpPj276KbyqV6z3z8Kbg95F3QqfGF/gencode.bb',
+          stylesheet_uri: 'https://dl.dnanex.us/F/D/5FbxpzGfFpX2Y6B069j0Gb68gY2Jv5F4PgXb2bP1/gencode.xml',
+          collapseSuperGroups: true,
+          trixURI: 'https://dl.dnanex.us/F/D/201BYVJj1y3PXxqyVp3gpZjk00fKx4q194Fb81Fk/geneIndex.ix'
+        }
+      ]
+    };
+
     function getToken(curr_redirect_uri) {
       document.location.href = auth_api + auth_route + "?client_id=" + client_id +
                                "&redirect_uri=" + encodeURIComponent(curr_redirect_uri) +
@@ -60,6 +118,13 @@
       var api = new DX.Api(token);
 
       var sources = [];
+
+      var genome = queryDict['genome'] || "hg19";
+
+      if (!genomeBundles.hasOwnProperty('genome')) {
+        alert("Unknown genome '" + genome + "' specified, defaulting to hg19");
+        genome = "hg19";
+      }
 
       function errorHandler(error) {
         var message = "An unexpected error occurred while attempting to load your data.";
@@ -121,22 +186,8 @@
 
       function launchBioDalliance(mappingSources, vcfData, tbiData) {
 
-        sources.push({
-          name: 'Genome',
-          twoBitURI: 'https://dl.dnanex.us/F/D/kbGB8kX54vq4PqVPQK9J8xV1VjjQ4Pbk75fKxjB1/hs37d5.2bit',
-          tier_type: 'sequence',
-          provides_entrypoints: true,
-          pinned: true
-        });
-
-        sources.push({
-          name: 'Genes',
-          desc: 'Gene structures from GENCODE 19',
-          bwgURI: 'https://dl.dnanex.us/F/D/f9032P65QG3xf2qzpf1g57Yy9q86BPQq4p47YxxY/gencode19.bb',
-          stylesheet_uri: 'https://dl.dnanex.us/F/D/fqGXGzYKyQVzQ187FzZ1jPB21kv7gXBxzxfx2g52/gencode19.xml',
-          collapseSuperGroups: true,
-          trixURI: 'https://dl.dnanex.us/F/D/xF1fQqjPx0gjFfBKpkzFygzj6qbJf0pfjBjfK722/gencode19.ix',
-          trixxURI: 'https://dl.dnanex.us/F/D/F9G97gXP6Pby7PQj9G3y3G4v7Q4G6qf91q9p8jy1/gencode19.ixx'
+        genomeSourceBundles[genome].forEach(function(source) {
+          sources.push(source);
         });
 
         mappingSources.forEach(function(source) {
