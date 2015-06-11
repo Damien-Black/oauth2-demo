@@ -180,11 +180,51 @@
         return loadingStatus;
       }
 
-      //This parses in a download URL from the ids provided by DNAnexus. These URLs will allow dalliance to pull data as needed for visualization
-      vcfCall = api.call(queryDict['vcf'], "download", { preauthenticated : true });
-      tbiCall = api.call(queryDict['tbi'], "download", { preauthenticated : true });
+      function loadVariants() {
+        var variantSources = [];
+        var loadingStatus = $.Deferred();
 
-      function launchBioDalliance(mappingSources, vcfData, tbiData) {
+        var vcfFileIDs = queryDict['vcf'].split(',');
+        var tbiFileIDs = queryDict['tbi'].split(',');
+
+        if (vcfFileIDs.length !== tbiFileIDs.length) {
+          var msg = "VCF/TBI mismatch detected. " + vcfFileIDs.length + " vcf files, " + tbiFileIDs.length + " tbi files.";
+          alert(msg);
+          throw new Error(msg);
+        }
+
+        var deferreds = [];
+        var vcfFileURLs = [];
+        var tbiFileURLs = [];
+        var i;
+
+        for (i = 0; i < vcfFileIDs.length; ++i) {
+          deferreds.push(api.call(vcfFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
+            vcfFileURLs.push(resp.url);
+          }));
+          deferreds.push(api.call(tbiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
+            tbiFileURLs.push(resp.url);
+          }));
+        }
+
+        $.when.apply($, deferreds).then(function() {
+          for (i = 0; i < vcfFileURLs.length; ++i) {
+            variantSources.push({
+              name: "Variants",
+              tier_type: "tabix",
+              payload: "vcf",
+              uri: vcfFileURLs[i],
+              indexURI: tbiFileURLs[i]
+            });
+          }
+
+          loadingStatus.resolve(variantSources);
+        }, errorHandler);
+
+        return loadingStatus;
+      }
+
+      function launchBioDalliance(mappingSources, variantSources) {
 
         genomeSourceBundles[genome].forEach(function(source) {
           sources.push(source);
@@ -194,12 +234,8 @@
           sources.push(source);
         });
 
-        sources.push({
-          name: "Variants",
-          tier_type: "tabix",
-          payload: "vcf",
-          uri: vcfData.url,
-          indexURI: tbiData.url
+        variantSources.forEach(function(source) {
+          sources.push(source);
         });
 
         var options = {
@@ -223,7 +259,7 @@
         var b = new Browser(options);
       }
 
-      $.when(loadMappings(), vcfCall, tbiCall).then(launchBioDalliance, errorHandler);
+      $.when(loadMappings(), loadVariants()).then(launchBioDalliance, errorHandler);
     }
 
     $(function() {
