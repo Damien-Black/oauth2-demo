@@ -184,7 +184,8 @@
           deferreds.push(api.call(baiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
             baiFileURLs.push(resp.url);
           }));
-          deferreds.push(api.call(bamFileIDs[i], "describe", {}).then(function(result) { bamFileNames.push(result.name);
+          deferreds.push(api.call(bamFileIDs[i], "describe", {}).then(function(result) { 
+            bamFileNames.push(result.name);
           }));
         }
 
@@ -221,6 +222,7 @@
         var deferreds = [];
         var vcfFileURLs = [];
         var tbiFileURLs = [];
+        var vcfFileNames = [];
         var i;
 
         for (i = 0; i < vcfFileIDs.length; ++i) {
@@ -230,12 +232,15 @@
           deferreds.push(api.call(tbiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
             tbiFileURLs.push(resp.url);
           }));
+          deferreds.push(api.call(vcfFileIDs[i], "describe", { }).then(function(result) {
+            vcfFileNames.push(result.name);
+          }));
         }
 
         $.when.apply($, deferreds).then(function() {
           for (i = 0; i < vcfFileURLs.length; ++i) {
             variantSources.push({
-              name: "Variants",
+              name: "Variants: " + vcfFileNames[i],
               tier_type: "tabix",
               payload: "vcf",
               uri: vcfFileURLs[i],
