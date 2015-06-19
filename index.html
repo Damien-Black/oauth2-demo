@@ -185,11 +185,11 @@
           }));
         }
 
-        var bamNames = api.call(bamFileIDs, "describeDataObjects", {}).done(function(result) { return [for (r of result) r['describe']['name']] });
+        //var bamNames = api.call(bamFileIDs, "describeDataObjects", {}).done(function(result) { return [for (r of result) r['describe']['name']] });
         $.when.apply($, deferreds).then(function() {
           for (i = 0; i < bamFileURLs.length; ++i) {
-            //var filename = api.call(bamFileIDs[i], "describe", {}).done(function(result) { return result.name });
-            var filename = bamNames[i];
+            var filename = api.call(bamFileIDs[i], "describe", {}).done(function(result) { return result.name });
+            //var filename = bamNames[i];
             mappingSources.push({
               name: "Mappings: " + filename,
               bamURI: bamFileURLs[i],
