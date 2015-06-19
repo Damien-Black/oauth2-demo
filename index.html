@@ -174,6 +174,7 @@
         var deferreds = [];
         var bamFileURLs = [];
         var baiFileURLs = [];
+        var bamFileNames = [];
         var i;
 
         for (i = 0; i < bamFileIDs.length; ++i) {
@@ -183,15 +184,16 @@
           deferreds.push(api.call(baiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
             baiFileURLs.push(resp.url);
           }));
+          deferreds.push(api.call(bamFileIDs[i], "describe", {}).then(function(result) { bamFileNames.push(result.name);
+          }));
         }
 
         //var bamNames = api.call(bamFileIDs, "describeDataObjects", {}).done(function(result) { return [for (r of result) r['describe']['name']] });
         $.when.apply($, deferreds).then(function() {
           for (i = 0; i < bamFileURLs.length; ++i) {
-            var filename = api.call(bamFileIDs[i], "describe", {}).done(function(result) { return result.name });
             //var filename = bamNames[i];
             mappingSources.push({
-              name: "Mappings: " + filename,
+              name: "Mappings: " + bamFileNames[i],
               bamURI: bamFileURLs[i],
               baiURI: baiFileURLs[i]
             });
