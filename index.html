@@ -188,7 +188,7 @@
         $.when.apply($, deferreds).then(function() {
           for (i = 0; i < bamFileURLs.length; ++i) {
             mappingSources.push({
-              name: "Mappings",
+              name: "Mappings: " + api.call(bamFileIDs[i], "describe")["name"],
               bamURI: bamFileURLs[i],
               baiURI: baiFileURLs[i]
             });
