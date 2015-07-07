@@ -184,7 +184,7 @@
           deferreds.push(api.call(baiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
             baiFileURLs.push(resp.url);
           }));
-          deferreds.push(api.call(bamFileIDs[i], "describe", { "project": queryDict['project'] }).then(function(result) { 
+          deferreds.push(api.call(bamFileIDs[i], "describe", { project: queryDict['project'] }).then(function(result) { 
             bamFileNames.push(result.name);
           }));
         }
@@ -232,7 +232,7 @@
           deferreds.push(api.call(tbiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
             tbiFileURLs.push(resp.url);
           }));
-          deferreds.push(api.call(vcfFileIDs[i], "describe", { "project": queryDict['project'] }).then(function(result) {
+          deferreds.push(api.call(vcfFileIDs[i], "describe", { project: queryDict['project'] }).then(function(result) {
             vcfFileNames.push(result.name);
           }));
         }
