@@ -1,341 +1,135 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
-    <title>Browser</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script language="javascript" src="https://dnanexus.github.io/reporting-assets/dalliance/5412566/dalliance-all.js"></script>
-    <script language="javascript" src="https://dnanexus.github.io/reporting-assets/dnanexus-js/0.0.11/dnanexus-0.0.11.min.js"></script>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Dnanexus-oauth2-demo by kislyuk</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/respond.js"></script>
+
+    <script src="javascripts/operative-0.3.2.min.js"></script>
+    <script src="javascripts/spark-md5-0.0.5.min.js"></script>
+    <script src="javascripts/dnanexus-javascript-toolkit-0.0.6.min.js"></script>
+
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
   </head>
-
   <body>
-    <div id='svgHolder'>Dalliance genome browser goes here. If this note does not disappear soon, there was a problem loading the code.</div>
-    <script language="javascript">
+      <div id="header">
+        <nav>
+          <li class="fork"><a href="https://github.com/dnanexus/oauth2-demo">View On GitHub</a></li>
+          <li class="downloads"><a href="https://github.com/dnanexus/oauth2-demo/zipball/master">ZIP</a></li>
+          <li class="downloads"><a href="https://github.com/dnanexus/oauth2-demo/tarball/master">TAR</a></li>
+          <li class="title">DOWNLOADS</li>
+        </nav>
+      </div><!-- end header -->
 
-    var auth_api = "https://auth.dnanexus.com";
-    var auth_route = "/oauth2/authorize";
-    var client_id = "test";
-    var redirect_uri = "https://dnanexus.github.io/oauth2-demo";
+    <div class="wrapper">
 
-    var genomeSourceBundles = {
-      hg18: [
-        {
-          name: 'Genome',
-          twoBitURI: 'https://dl.dnanex.us/F/D/g1Xgk0V93q2BXPPfP2p0fv9VyYV91G4502xgX1xZ/hg18.2bit',
-          tier_type: 'sequence',
-          provides_entrypoints: true,
-          pinned: true
-        },
-        {
-          name: 'Genes',
-          desc: 'Gene structures from Ensembl 54',
-          uri: 'http://www.derkholm.net:8080/das/hsa_54_36p/',
-          collapseSuperGroups:  true,
-          provides_karyotype:   true,
-          provides_search:      true,
-          provides_entrypoints: true,
-          maxbins:              false
-        }
-      ],
+      <section>
+        <div id="title">
+          <h1>Dnanexus-oauth2-demo</h1>
+          <p>DNAnexus OAuth2 demo site</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/kislyuk">kislyuk</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></span>
+        </div>
 
-      hg19: [
-        {
-          name: 'Genome',
-          twoBitURI: 'https://dl.dnanex.us/F/D/kKvgBfg4Z2ykyg29V2kFG5FvPyg1VG2Qqb1Z2jQq/hg19.2bit',
-          tier_type: 'sequence',
-          provides_entrypoints: true,
-          pinned: true
-        },
-        {
-          name: 'Genes',
-          desc: 'Gene structures from GENCODE 19',
-          bwgURI: 'https://dl.dnanex.us/F/D/GBk5FgkZPBjXpPj276KbyqV6z3z8Kbg95F3QqfGF/gencode.bb',
-          stylesheet_uri: 'https://dl.dnanex.us/F/D/5FbxpzGfFpX2Y6B069j0Gb68gY2Jv5F4PgXb2bP1/gencode.xml',
-          collapseSuperGroups: true,
-          trixURI: 'https://dl.dnanex.us/F/D/201BYVJj1y3PXxqyVp3gpZjk00fKx4q194Fb81Fk/geneIndex.ix'
-        }
-      ],
+        <h1>
+<a name="dnanexus-oauth2-demo" class="anchor" href="#dnanexus-oauth2-demo"><span class="octicon octicon-link"></span></a>DNAnexus OAuth2 demo</h1>
 
-      GRCh37: [
-        {
-          name: 'Genome',
-          twoBitURI: 'https://dl.dnanex.us/F/D/VkJKXPKJqv7qK4QQbV6JJVGzZ59155q7FvfFJfK8/hs37d5.2bit',
-          tier_type: 'sequence',
-          provides_entrypoints: true,
-          pinned: true
-        },
-        {
-          name: 'Genes',
-          desc: 'Gene structures from GENCODE 19',
-          bwgURI: 'https://dl.dnanex.us/F/D/GBk5FgkZPBjXpPj276KbyqV6z3z8Kbg95F3QqfGF/gencode.bb',
-          stylesheet_uri: 'https://dl.dnanex.us/F/D/5FbxpzGfFpX2Y6B069j0Gb68gY2Jv5F4PgXb2bP1/gencode.xml',
-          collapseSuperGroups: true,
-          trixURI: 'https://dl.dnanex.us/F/D/201BYVJj1y3PXxqyVp3gpZjk00fKx4q194Fb81Fk/geneIndex.ix'
-        }
-      ]
-    };
+        <script type="text/javascript">
+            (function($) {
+                $.queryString = (function(a) {
+                    if (a == "") return {};
+                    var b = {};
+                    for (var i = 0; i < a.length; ++i)
+                    {
+                        var p=a[i].split('=');
+                        if (p.length != 2) continue;
+                        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
+                    }
+                    return b;
+                })(window.location.search.substr(1).split('&'))
+            })(jQuery);
 
-    var genomeInfo = {
-      hg18: {
-        auth: 'hg',
-        version: '18',
-        cookieKey: 'human-hg18'
-      },
+          var dx_api = "https://api.dnanexus.com";
+          var auth_api = "https://auth.dnanexus.com";
+          var auth_route = "/oauth2/authorize";
+          var client_id = "test";
+          var redirect_uri = "https://dnanexus.github.io/oauth2-demo";
 
-      hg19: {
-        auth: 'hg',
-        version: '19',
-        cookieKey: 'human-hg19'
-      },
+          //dx_api = "http://localhost:8124";
+          //auth_api = "http://localhost:8081";
+          //dx_api = "https://stagingapi.dnanexus.com";
+          //auth_api = "https://stagingauth.dnanexus.com";
 
-      GRCh37: {
-        auth: 'GRCh',
-        version: '37',
-        cookieKey: 'human-hs37d5'
-      }
-    };
+          document.write("<a href='" + auth_api + auth_route + "?client_id=" + client_id +
+                         "&redirect_uri=" + encodeURIComponent(redirect_uri) +
+                         "&response_type=code'>Log in to DNAnexus</a>");
 
-    function getToken(curr_redirect_uri) {
-      document.location.href = auth_api + auth_route + "?client_id=" + client_id +
-                               "&redirect_uri=" + encodeURIComponent(curr_redirect_uri) +
-                               "&response_type=code";
-                               // TODO add scoping parameters
-    }
+          function populateProjectList(authToken) {
+            var api = new DX.Api(authToken);
+            var opts = {
+              describe: {
+                fields: {
+                  name: true,
+                  id: true
+                }
+              }
+            };
 
-    function getAuthToken(authorizationCode, curr_redirect_uri, callback) {
-      $.post(auth_api + "/oauth2/token?grant_type=authorization_code" +
-             "&code=" + authorizationCode +
-             "&redirect_uri=" + encodeURIComponent(curr_redirect_uri),
-             callback);
-    }
-
-    function getCookie(cname) {
-      // From http://www.w3schools.com/js/js_cookies.asp
-      var name = cname + "=";
-      var ca = document.cookie.split(';');
-      for(var i=0; i<ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1);
-        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
-      }
-      return "";
-    }
-
-    function setCookie(cname, cvalue, exdays) {
-      // From http://www.w3schools.com/js/js_cookies.asp
-      var d = new Date();
-      d.setTime(d.getTime() + (exdays*24*60*60*1000));
-      var expires = "expires="+d.toUTCString();
-      document.cookie = cname + "=" + cvalue + "; " + expires;
-    }
-
-    function missingCookie(cname) {
-      var cookie_value = getCookie(cname);
-      return cookie_value == "";
-    }
-
-    function runBiodalliance(queryDict) {
-      var token = getCookie("dnanexus_token");
-      var api = new DX.Api(token);
-
-      var sources = [];
-
-      var genome = queryDict['genome'] || "hg19";
-
-      if (!genomeSourceBundles.hasOwnProperty(genome)) {
-        alert("Unknown genome '" + genome + "' specified, defaulting to hg19");
-        genome = "hg19";
-      }
-
-      function errorHandler(error) {
-        var message = "An unexpected error occurred while attempting to load your data.";
-        if (error && error.type && error.message) {
-          message = error.type + ": " + error.message;
-        }
-        alert(message);
-      }
-
-      /*
-       * Loads all fo the mappings as two comma separated lists of file IDS in the url,
-       * as query parameters "bam" and "bai"
-       */
-      function loadMappings() {
-        var mappingSources = [];
-        var loadingStatus = $.Deferred();
-
-        var bamFileIDs = queryDict['bam'].split(',');
-        var baiFileIDs = queryDict['bai'].split(',');
-
-        if (bamFileIDs.length !== baiFileIDs.length) {
-          var msg = "BAM/BAI mismatch detected. " + bamFileIDs.length + " bam files, " + baiFileIDs.length + " bai files.";
-          alert(msg);
-          throw new Error(msg);
-        }
-
-        var deferreds = [];
-        var bamFileURLs = [];
-        var baiFileURLs = [];
-        var bamFileNames = [];
-        var i;
-
-        for (i = 0; i < bamFileIDs.length; ++i) {
-          deferreds.push(api.call(bamFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
-            bamFileURLs.push(resp.url);
-          }));
-          deferreds.push(api.call(baiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
-            baiFileURLs.push(resp.url);
-          }));
-          deferreds.push(api.call(bamFileIDs[i], "describe", { project: queryDict['project'] }).then(function(result) { 
-            bamFileNames.push(result.name);
-          }));
-        }
-
-        //var bamNames = api.call(bamFileIDs, "describeDataObjects", {}).done(function(result) { return [for (r of result) r['describe']['name']] });
-        $.when.apply($, deferreds).then(function() {
-          for (i = 0; i < bamFileURLs.length; ++i) {
-            //var filename = bamNames[i];
-            mappingSources.push({
-              name: "Mappings: " + bamFileNames[i],
-              bamURI: bamFileURLs[i],
-              baiURI: baiFileURLs[i]
+            api.call("system", "findProjects", opts).done(function(response) {
+              for (var i=0; i < response.results.length; i++) {
+                var desc = response.results[i].describe;
+                $('#projectList').append("<tr><td>"+desc.id+"</td><td>"+desc.name+"</td></tr>");
+              }
             });
           }
 
-          loadingStatus.resolve(mappingSources);
-        }, errorHandler);
-
-        return loadingStatus;
-      }
-
-      function loadVariants() {
-        var variantSources = [];
-        var loadingStatus = $.Deferred();
-
-        var vcfFileIDs = queryDict['vcf'].split(',');
-        var tbiFileIDs = queryDict['tbi'].split(',');
-
-        if (vcfFileIDs.length !== tbiFileIDs.length) {
-          var msg = "VCF/TBI mismatch detected. " + vcfFileIDs.length + " vcf files, " + tbiFileIDs.length + " tbi files.";
-          alert(msg);
-          throw new Error(msg);
-        }
-
-        var deferreds = [];
-        var vcfFileURLs = [];
-        var tbiFileURLs = [];
-        var vcfFileNames = [];
-        var i;
-
-        for (i = 0; i < vcfFileIDs.length; ++i) {
-          deferreds.push(api.call(vcfFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
-            vcfFileURLs.push(resp.url);
-          }));
-          deferreds.push(api.call(tbiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
-            tbiFileURLs.push(resp.url);
-          }));
-          deferreds.push(api.call(vcfFileIDs[i], "describe", { project: queryDict['project'] }).then(function(result) {
-            vcfFileNames.push(result.name);
-          }));
-        }
-
-        $.when.apply($, deferreds).then(function() {
-          for (i = 0; i < vcfFileURLs.length; ++i) {
-            variantSources.push({
-              name: "Variants: " + vcfFileNames[i],
-              tier_type: "tabix",
-              payload: "vcf",
-              uri: vcfFileURLs[i],
-              indexURI: tbiFileURLs[i]
-            });
+          function getAuthToken(authorizationCode, redirect_uri, callback) {
+            $.post(auth_api + "/oauth2/token?grant_type=authorization_code" +
+                   "&code=" + authorizationCode +
+                   "&redirect_uri=" + encodeURIComponent(redirect_uri),
+                   callback);
           }
 
-          loadingStatus.resolve(variantSources);
-        }, errorHandler);
-
-        return loadingStatus;
-      }
-
-      function launchBioDalliance(mappingSources, variantSources) {
-
-        genomeSourceBundles[genome].forEach(function(source) {
-          sources.push(source);
-        });
-
-        variantSources.forEach(function(source) {
-          sources.push(source);
-        });
-
-        mappingSources.forEach(function(source) {
-          sources.push(source);
-        });
-
-        var cookieKey = genomeInfo[genome].cookieKey;
-        var auth = genomeInfo[genome].auth
-        var version = genomeInfo[genome].version;
-
-        var options = {
-          chr: queryDict['chr'],
-          cookieKey: cookieKey,
-          coordSystem: {
-            speciesName: 'Human',
-            taxon: 9606,
-            auth: auth,
-            version: version
-          },
-          fullScreen: true,
-          noPersist: true,
-          setDocumentTitle: true,
-          sources: sources,
-          uiPrefix: 'https://dnanexus.github.io/reporting-assets/dalliance/5412566/',
-          viewStart: parseInt(queryDict['lo']),
-          viewEnd: parseInt(queryDict['hi'])
-        };
-
-        var b = new Browser(options);
-      }
-
-      $.when(loadMappings(), loadVariants()).then(launchBioDalliance, errorHandler);
-    }
-
-    $(function() {
-
-      // This is going to parse in provided information that should certainly contain vcf and tbi.
-      // The values chr, lo, and hi are also expected to initialize the browser at a location
-      var queryDict = {};
-      location.search.substr(1).split("&").forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
-
-      // First, if this is a redirect from acquiring a token from DNAnexus authentication.
-      if ("code" in queryDict) {
-        // The following sequence demonstrates use of the OAuth2 API to exchange the authorization code for an
-        // access token.  (The terms "access token" and "auth token" are used interchangeably.)
-        biodallianceParams = JSON.parse(getCookie("biodalliance_params"));
-        setCookie("biodalliance_params", "", -7);
-        getAuthToken(queryDict["code"],
-                     redirect_uri,
-                     function(tokenData) {
-                       setCookie("dnanexus_token", tokenData.access_token, 7);
-                       runBiodalliance(biodallianceParams);
-                     });
-      } else {
-          //This Token provides access to the project. It will need to link to the account on DNAnexus which contains the item.
-          var token = getCookie("dnanexus_token");
-
-          if (token == "") {
-            setCookie("biodalliance_params", JSON.stringify(queryDict), 7);
-            getToken(redirect_uri);
+          function refreshAuthToken(refreshToken, callback) {
+            $.post(auth_api + "/oauth2/token?grant_type=refresh_token" +
+                   "&refresh_token=" + refreshToken,
+                   callback);
           }
-          else {
-            // Make sure the token is valid
-            var api = new DX.Api(token);
-            api.call("system", "whoami").then(function(response) {
-              runBiodalliance(queryDict);
-            }).fail(function() {
-              setCookie("biodalliance_params", JSON.stringify(queryDict), 7);
-              getToken(redirect_uri);
-            });
+
+          if ($.queryString.code) {
+            document.write("<p>Received authentication code. Retrieving projects:</p>");
+            document.write("<table id='projectList'><tr><th>Project ID</th><th>Project name</th></tr></table>");
+            // The following sequence demonstrates use of the OAuth2 API to exchange the authorization code for an
+            // access token and refresh token, then using the refresh token twice to get a new access and refresh token.
+            // (The terms "access token" and "auth token" are used interchangeably.)
+            // Note: typically, the refresh token flow would be triggered by a 403 return code.
+            getAuthToken($.queryString.code,
+                         redirect_uri,
+                         function(tokenData) {
+                           refreshAuthToken(tokenData.refresh_token, function(tokenData2) {
+                             refreshAuthToken(tokenData2.refresh_token, function(tokenData3) {
+                               populateProjectList(tokenData3.access_token);
+                             });
+                           });
+                         });
           }
-      }
-    });
-    </script>
+        </script>
+      </section>
+
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
   </body>
 </html>
-
