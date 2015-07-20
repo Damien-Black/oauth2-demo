@@ -175,7 +175,7 @@
           throw new Error(msg);
         }
 
-        if (sampleNames.length !== 0) && (sampleNames.length !== bamFileIDs.length) {
+        if ((sampleNames.length !== 0) && (sampleNames.length !== bamFileIDs.length)) {
           var msg = "Sample name/BAM mismatch detected. " + sampleNames.length + " sample names, " + bamFileIDs.length + " bam files.";
           alert(msg);
           throw new Error(msg);
