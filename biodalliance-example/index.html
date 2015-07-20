@@ -164,9 +164,9 @@
 
         var bamFileIDs = queryDict['bam'].split(',');
         var baiFileIDs = queryDict['bai'].split(',');
-        var sampleNames = [];
+        var bamSampleNames = [];
         if ('sampleName' in queryDict) {
-          sampleNames = queryDict['sampleName'].split(',');
+          bamSampleNames = queryDict['sampleName'].split(',');
         }
 
         if (bamFileIDs.length !== baiFileIDs.length) {
@@ -175,8 +175,8 @@
           throw new Error(msg);
         }
 
-        if ((sampleNames.length !== 0) && (sampleNames.length !== bamFileIDs.length)) {
-          var msg = "Sample name/BAM mismatch detected. " + sampleNames.length + " sample names, " + bamFileIDs.length + " bam files.";
+        if ((bamSampleNames.length !== 0) && (bamSampleNames.length !== bamFileIDs.length)) {
+          var msg = "Sample name/BAM mismatch detected. " + bamSampleNames.length + " sample names, " + bamFileIDs.length + " bam files.";
           alert(msg);
           throw new Error(msg);
         }
@@ -193,9 +193,9 @@
           deferreds.push(api.call(baiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
             baiFileURLs.push(resp.url);
           }));
-          if (sampleNames.length === 0) {
+          if (bamSampleNames.length === 0) {
             deferreds.push(api.call(bamFileIDs[i], "describe", { project: queryDict['project'] }).then(function(result) {
-              sampleNames.push(result.name);
+              bamSampleNames.push(result.name);
             }));
           }
         }
@@ -205,7 +205,7 @@
           for (i = 0; i < bamFileURLs.length; ++i) {
             //var filename = bamNames[i];
             mappingSources.push({
-              name: "Mappings: " + decodeURIComponent(sampleNames[i]),
+              name: "Mappings: " + decodeURIComponent(bamSampleNames[i]),
               bamURI: bamFileURLs[i],
               baiURI: baiFileURLs[i]
             });
@@ -223,6 +223,10 @@
 
         var vcfFileIDs = queryDict['vcf'].split(',');
         var tbiFileIDs = queryDict['tbi'].split(',');
+        var vcfSampleNames = [];
+        if ('sampleName' in queryDict) {
+          vcfSampleNames = queryDict['sampleName'].split(',');
+        }
 
         if (vcfFileIDs.length !== tbiFileIDs.length) {
           var msg = "VCF/TBI mismatch detected. " + vcfFileIDs.length + " vcf files, " + tbiFileIDs.length + " tbi files.";
@@ -230,10 +234,15 @@
           throw new Error(msg);
         }
 
+        if ((vcfSampleNames.length !== 0) && (vcfSampleNames.length !== vcfFileIDs.length)) {
+          var msg = "Sample name/VCF mismatch detected. " + vcfSampleNames.length + " sample names, " + vcfFileIDs.length + " vcf files.";
+          alert(msg);
+          throw new Error(msg);
+        }
+
         var deferreds = [];
         var vcfFileURLs = [];
         var tbiFileURLs = [];
-        var vcfFileNames = [];
         var i;
 
         for (i = 0; i < vcfFileIDs.length; ++i) {
@@ -243,15 +252,17 @@
           deferreds.push(api.call(tbiFileIDs[i], "download", { preauthenticated : true }).then(function(resp) {
             tbiFileURLs.push(resp.url);
           }));
-          deferreds.push(api.call(vcfFileIDs[i], "describe", { project: queryDict['project'] }).then(function(result) {
-            vcfFileNames.push(result.name);
-          }));
+          if (vcfSampleNames.length === 0) {
+            deferreds.push(api.call(vcfFileIDs[i], "describe", { project: queryDict['project'] }).then(function(result) {
+              vcfSampleNames.push(result.name);
+            }));
+          }
         }
 
         $.when.apply($, deferreds).then(function() {
           for (i = 0; i < vcfFileURLs.length; ++i) {
             variantSources.push({
-              name: "Variants: " + vcfFileNames[i],
+              name: "Variants: " + decodeURIComponent(vcfSampleNames[i]),
               tier_type: "tabix",
               payload: "vcf",
               uri: vcfFileURLs[i],
