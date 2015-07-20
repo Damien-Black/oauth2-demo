@@ -197,6 +197,7 @@
             deferreds.push(api.call(bamFileIDs[i], "describe", { project: queryDict['project'] }).then(function(result) {
               sampleNames.push(result.name);
             }));
+          }
         }
 
         //var bamNames = api.call(bamFileIDs, "describeDataObjects", {}).done(function(result) { return [for (r of result) r['describe']['name']] });
