@@ -78,6 +78,7 @@
 
           function populateProjectList(authToken) {
             var api = new DX.Api(authToken);
+            api.apiServer = dx_api;
             var opts = {
               describe: {
                 fields: {
